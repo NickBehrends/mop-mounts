@@ -1,4 +1,4 @@
-import { Expansion } from '../lib/types';
+import type { Expansion } from '../lib/types';
 
 interface ExpansionFilterProps {
   value: string;

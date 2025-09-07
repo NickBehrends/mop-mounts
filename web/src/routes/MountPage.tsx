@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Mount } from '../lib/types';
+import type { Mount } from '../lib/types';
 import { loadMounts } from '../lib/dataset';
 
 export default function MountPage() {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Mount } from '../lib/types';
+import type { Mount } from '../lib/types';
 import { loadMounts, searchMounts, filterByExpansion } from '../lib/dataset';
 import SearchBox from '../components/SearchBox';
 import ExpansionFilter from '../components/ExpansionFilter';

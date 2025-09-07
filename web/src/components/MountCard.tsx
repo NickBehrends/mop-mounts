@@ -1,4 +1,4 @@
-import { Mount } from '../lib/types';
+import type { Mount } from '../lib/types';
 import { Link } from 'react-router-dom';
 
 interface MountCardProps {

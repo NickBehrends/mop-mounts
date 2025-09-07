@@ -1,4 +1,4 @@
-import { Mount } from './types';
+import type { Mount } from './types';
 
 export interface DatasetState {
   mounts: Mount[];
