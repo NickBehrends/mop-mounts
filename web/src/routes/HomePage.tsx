@@ -1,13 +1,16 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import type { Mount } from '../lib/types';
-import { loadMounts, searchAndFilter } from '../lib/dataset';
+import { loadMounts } from '../lib/dataset';
 import { debounce } from '../lib/debounce';
 import { getOwnershipStats } from '../lib/storage';
+import { applyFilters } from '../lib/filterUtils';
 import SearchBox from '../components/SearchBox';
-import ExpansionFilter from '../components/ExpansionFilter';
+import FilterPanel from '../components/FilterPanel';
+import type { FilterState } from '../components/FilterPanel';
 import MountCard from '../components/MountCard';
 import ProgressBadge from '../components/ProgressBadge';
+import EmptyState from '../components/EmptyState';
 
 export default function HomePage() {
   const [filteredMounts, setFilteredMounts] = useState<Mount[]>([]);
@@ -15,12 +18,18 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedExpansion, setSelectedExpansion] = useState('all');
+  const [filters, setFilters] = useState<FilterState>({
+    expansions: [],
+    category: 'all',
+    faction: 'all',
+    sourceType: 'all',
+    ownership: 'all'
+  });
 
-  // Debounced search function
-  const debouncedSearch = useCallback(
-    debounce((query: string, expansion: string) => {
-      const results = searchAndFilter(query, expansion);
+  // Debounced search and filter function
+  const debouncedFilter = useCallback(
+    debounce((query: string, filterState: FilterState, mounts: Mount[]) => {
+      const results = applyFilters(mounts, query, filterState);
       setFilteredMounts(results);
     }, 150),
     []
@@ -39,7 +48,7 @@ export default function HomePage() {
       migrateOwnedMounts(validMountIds);
       
       // Initial load with current filters
-      const results = searchAndFilter(searchQuery, selectedExpansion);
+      const results = applyFilters(mountsData, searchQuery, filters);
       setFilteredMounts(results);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load mount data');
@@ -53,10 +62,10 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    if (!loading) {
-      debouncedSearch(searchQuery, selectedExpansion);
+    if (!loading && allMounts.length > 0) {
+      debouncedFilter(searchQuery, filters, allMounts);
     }
-  }, [searchQuery, selectedExpansion, loading, debouncedSearch]);
+  }, [searchQuery, filters, allMounts, loading, debouncedFilter]);
 
   const handleRetry = () => {
     loadData();
@@ -94,35 +103,43 @@ export default function HomePage() {
             label="Overall Progress"
           />
         )}
-        <div className="filters">
+        <div className="search-section">
           <SearchBox 
             value={searchQuery} 
             onChange={setSearchQuery}
-            placeholder="Search mounts..."
-          />
-          <ExpansionFilter 
-            value={selectedExpansion} 
-            onChange={setSelectedExpansion}
+            placeholder="Search mounts by name, source, zone, or tags..."
           />
         </div>
       </header>
 
-      <main>
-        <div className="results-count">
-          {filteredMounts.length} mount{filteredMounts.length !== 1 ? 's' : ''} found
-        </div>
-        
-        <div className="mounts-grid">
-          {filteredMounts.map((mount) => (
-            <MountCard key={mount.id} mount={mount} />
-          ))}
-        </div>
+      <FilterPanel
+        filters={filters}
+        onFiltersChange={setFilters}
+        resultCount={filteredMounts.length}
+      />
 
-        {filteredMounts.length === 0 && !loading && (
-          <div className="no-results">
-            No mounts found matching your criteria.
+      <main>        
+        {filteredMounts.length > 0 ? (
+          <div className="mounts-grid">
+            {filteredMounts.map((mount) => (
+              <MountCard key={mount.id} mount={mount} />
+            ))}
           </div>
-        )}
+        ) : !loading ? (
+          <EmptyState
+            searchQuery={searchQuery}
+            filters={filters}
+            allMounts={allMounts}
+            onClearFilters={() => setFilters({
+              expansions: [],
+              category: 'all',
+              faction: 'all',
+              sourceType: 'all',
+              ownership: 'all'
+            })}
+            onClearSearch={() => setSearchQuery('')}
+          />
+        ) : null}
       </main>
     </div>
   );
