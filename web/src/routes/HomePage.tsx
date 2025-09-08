@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import type { Mount } from '../lib/types';
 import { loadMounts, searchAndFilter } from '../lib/dataset';
 import { debounce } from '../lib/debounce';
@@ -82,7 +83,10 @@ export default function HomePage() {
   return (
     <div className="home-page">
       <header>
-        <h1>MoP Mounts Collection</h1>
+        <div className="header-top">
+          <h1>MoP Mounts Collection</h1>
+          <Link to="/settings" className="settings-link">⚙️ Settings</Link>
+        </div>
         {stats && (
           <ProgressBadge 
             owned={stats.global.owned} 

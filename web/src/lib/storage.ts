@@ -7,6 +7,16 @@ export interface UserCollection {
   dataVersion?: number;
 }
 
+// Export format for portable collection files
+export interface UserCollectionFile {
+  schema: "mop-mounts.user-collection";
+  schemaVersion: 1;
+  exportedAtUtc: string;         // ISO8601
+  datasetDataVersion: number;    // from mounts.json "dataVersion"
+  owned: string[];               // array of Mount.id
+  notes?: Record<string, string>; // optional user notes keyed by id
+}
+
 // Load owned mount IDs from localStorage
 export const loadOwnedMounts = (): string[] => {
   try {
@@ -114,4 +124,78 @@ export const getOwnershipStats = (allMounts: import('./types').Mount[]) => {
     },
     byExpansion: expansionStats
   };
+};
+
+// Export collection as downloadable JSON file
+export const exportCollection = (): void => {
+  const ownedMounts = loadOwnedMounts();
+  
+  const collection: UserCollectionFile = {
+    schema: "mop-mounts.user-collection",
+    schemaVersion: 1,
+    exportedAtUtc: new Date().toISOString(),
+    datasetDataVersion: 1, // TODO: Get from actual dataset
+    owned: ownedMounts,
+    notes: {} // TODO: Add notes support if needed
+  };
+
+  // Create blob and download
+  const blob = new Blob([JSON.stringify(collection, null, 2)], {
+    type: 'application/json'
+  });
+  
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'mop-mounts.collection.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+
+// Import collection from JSON file
+export const importCollection = async (file: File, validMountIds: string[]): Promise<{
+  success: boolean;
+  droppedIds?: string[];
+  error?: string;
+}> => {
+  try {
+    const text = await file.text();
+    const collection: UserCollectionFile = JSON.parse(text);
+
+    // Validate schema
+    if (collection.schema !== "mop-mounts.user-collection") {
+      return {
+        success: false,
+        error: "Invalid file format. Expected mop-mounts collection file."
+      };
+    }
+
+    // Check schema version
+    if (collection.schemaVersion !== 1) {
+      return {
+        success: false,
+        error: `Unsupported schema version ${collection.schemaVersion}. Expected version 1.`
+      };
+    }
+
+    // Validate and filter owned IDs
+    const validOwned = collection.owned.filter(id => validMountIds.includes(id));
+    const droppedIds = collection.owned.filter(id => !validMountIds.includes(id));
+
+    // Replace current owned list
+    saveOwnedMounts(validOwned);
+
+    return {
+      success: true,
+      droppedIds: droppedIds.length > 0 ? droppedIds : undefined
+    };
+
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to parse collection file'
+    };
+  }
 };
