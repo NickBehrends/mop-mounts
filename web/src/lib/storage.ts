@@ -199,3 +199,20 @@ export const importCollection = async (file: File, validMountIds: string[]): Pro
     };
   }
 };
+
+// Bulk operations
+export const bulkToggleOwnership = (mountIds: string[], makeOwned: boolean): string[] => {
+  const currentOwned = loadOwnedMounts();
+  
+  let newOwned: string[];
+  if (makeOwned) {
+    // Add all mountIds to owned list (avoiding duplicates)
+    newOwned = [...new Set([...currentOwned, ...mountIds])];
+  } else {
+    // Remove all mountIds from owned list
+    newOwned = currentOwned.filter(id => !mountIds.includes(id));
+  }
+  
+  saveOwnedMounts(newOwned);
+  return newOwned;
+};

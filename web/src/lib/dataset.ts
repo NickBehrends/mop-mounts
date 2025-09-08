@@ -133,3 +133,27 @@ export const filterByExpansionLegacy = (mounts: Mount[], expansion: string): Mou
   if (!expansion || expansion === 'all') return mounts;
   return filterByExpansion(expansion);
 };
+
+// Sorting functionality
+export type SortOption = 'name' | 'sourceType' | 'category';
+
+export const sortMounts = (mounts: Mount[], sortBy: SortOption): Mount[] => {
+  const sorted = [...mounts];
+  
+  switch (sortBy) {
+    case 'name':
+      return sorted.sort((a, b) => a.name.localeCompare(b.name));
+    case 'sourceType':
+      return sorted.sort((a, b) => {
+        const sourceCompare = a.sourceType.localeCompare(b.sourceType);
+        return sourceCompare !== 0 ? sourceCompare : a.name.localeCompare(b.name);
+      });
+    case 'category':
+      return sorted.sort((a, b) => {
+        const categoryCompare = a.category.localeCompare(b.category);
+        return categoryCompare !== 0 ? categoryCompare : a.name.localeCompare(b.name);
+      });
+    default:
+      return sorted;
+  }
+};
