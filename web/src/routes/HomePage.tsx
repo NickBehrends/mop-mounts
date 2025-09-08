@@ -1,25 +1,35 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { Mount } from '../lib/types';
-import { loadMounts, searchMounts, filterByExpansion } from '../lib/dataset';
+import { loadMounts, searchAndFilter } from '../lib/dataset';
+import { debounce } from '../lib/debounce';
 import SearchBox from '../components/SearchBox';
 import ExpansionFilter from '../components/ExpansionFilter';
 import MountCard from '../components/MountCard';
 
 export default function HomePage() {
-  const [mounts, setMounts] = useState<Mount[]>([]);
   const [filteredMounts, setFilteredMounts] = useState<Mount[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedExpansion, setSelectedExpansion] = useState('all');
 
+  // Debounced search function
+  const debouncedSearch = useCallback(
+    debounce((query: string, expansion: string) => {
+      const results = searchAndFilter(query, expansion);
+      setFilteredMounts(results);
+    }, 150),
+    []
+  );
+
   const loadData = async () => {
     try {
       setLoading(true);
       setError(null);
-      const mountsData = await loadMounts();
-      setMounts(mountsData);
-      setFilteredMounts(mountsData);
+      await loadMounts();
+      // Initial load with current filters
+      const results = searchAndFilter(searchQuery, selectedExpansion);
+      setFilteredMounts(results);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load mount data');
     } finally {
@@ -32,11 +42,10 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    let filtered = mounts;
-    filtered = filterByExpansion(filtered, selectedExpansion);
-    filtered = searchMounts(filtered, searchQuery);
-    setFilteredMounts(filtered);
-  }, [mounts, searchQuery, selectedExpansion]);
+    if (!loading) {
+      debouncedSearch(searchQuery, selectedExpansion);
+    }
+  }, [searchQuery, selectedExpansion, loading, debouncedSearch]);
 
   const handleRetry = () => {
     loadData();

@@ -6,7 +6,7 @@ import App from './App.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter basename="/mop-mounts">
+    <BrowserRouter basename={import.meta.env.PROD ? "/mop-mounts" : ""}>
       <App />
     </BrowserRouter>
   </StrictMode>,
