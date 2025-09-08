@@ -9,6 +9,7 @@ A zero-backend React/TypeScript SPA for browsing World of Warcraft mounts throug
 - **Filter by Expansion**: View mounts from specific expansions or all at once
 - **Ownership Tracking**: Mark mounts as owned with persistent local storage
 - **Progress Tracking**: View collection progress per expansion and globally with "X/Y Owned (Z%)" badges
+- **Import/Export Collections**: Share collections via downloadable JSON files with validation
 - **Visual Indicators**: Clear ownership status with checkmarks and progress bars
 - **Detailed Mount Pages**: Complete mount information including requirements, costs, and external links
 - **Client-Side Routing**: Deep links work for expansions and individual mounts
@@ -65,6 +66,7 @@ web/
 - **`/`** - Home page with search and filters
 - **`/expansion/:name`** - Mounts filtered by expansion
 - **`/mount/:id`** - Individual mount details
+- **`/settings`** - Collection management (import/export)
 - **SPA Fallback** - All routes redirect to `/index.html` for client-side routing
 
 ## Development
@@ -138,6 +140,8 @@ The app is configured for GitHub Pages deployment:
 - **Progress Tracking**: View collection progress with "X/Y Owned (Z%)" badges per expansion and globally
 - **Data Storage**: Uses `localStorage["mop-mounts.v2.owned"]` to persist owned mount IDs
 - **Data Migration**: Automatic cleanup when mount dataset changes (removes invalid IDs)
+- **Import/Export**: Download collections as `mop-mounts.collection.json` or import from others
+- **Collection Validation**: Import validates schema version and filters unknown mount IDs
 - **Visual Indicators**: Clear owned/unowned status with checkmarks and progress bars
 
 ## Dependencies
@@ -150,8 +154,9 @@ npm install --save-dev @types/node
 
 ## Future Enhancements
 
-- Import/export functionality for personal collection data
 - Progressive Web App (PWA) features
 - Advanced filtering options (faction, source type, etc.)
 - Collection statistics and analytics
 - Achievement tracking integration
+- User notes on individual mounts
+- Collection sharing via URL/QR codes

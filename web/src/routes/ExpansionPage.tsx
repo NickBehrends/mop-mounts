@@ -47,7 +47,7 @@ export default function ExpansionPage() {
   }
 
   const stats = allMounts.length > 0 && name ? getOwnershipStats(allMounts) : null;
-  const expansionStats = stats?.byExpansion[name];
+  const expansionStats = stats && name ? stats.byExpansion[name] : undefined;
 
   return (
     <div className="expansion-page">
