@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import type { Mount } from '../lib/types';
 import { loadMounts, getMountById } from '../lib/dataset';
+import { isMountOwned, toggleMountOwnership } from '../lib/storage';
 
 export default function MountPage() {
   const { id } = useParams<{ id: string }>();
   const [mount, setMount] = useState<Mount | null>(null);
+  const [owned, setOwned] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -20,6 +22,7 @@ export default function MountPage() {
           setError('Mount not found');
         } else {
           setMount(foundMount);
+          setOwned(isMountOwned(foundMount.id));
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load mount data');
@@ -30,6 +33,12 @@ export default function MountPage() {
 
     loadData();
   }, [id]);
+
+  const handleToggleOwned = () => {
+    if (!mount) return;
+    const newOwned = toggleMountOwnership(mount.id);
+    setOwned(newOwned);
+  };
 
   if (loading) {
     return <div className="loading">Loading mount details...</div>;
@@ -54,7 +63,16 @@ export default function MountPage() {
 
       <main>
         <div className="mount-details">
-          <h1>{mount.name}</h1>
+          <div className="mount-header">
+            <h1>{mount.name}</h1>
+            <button 
+              className={`ownership-toggle large ${owned ? 'owned' : ''}`}
+              onClick={handleToggleOwned}
+              title={owned ? 'Mark as not owned' : 'Mark as owned'}
+            >
+              {owned ? '✓ Owned' : '+ Mark as Owned'}
+            </button>
+          </div>
           
           <div className="mount-info">
             <div className="info-group">

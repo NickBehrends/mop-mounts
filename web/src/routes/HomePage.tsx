@@ -2,12 +2,15 @@ import { useState, useEffect, useCallback } from 'react';
 import type { Mount } from '../lib/types';
 import { loadMounts, searchAndFilter } from '../lib/dataset';
 import { debounce } from '../lib/debounce';
+import { getOwnershipStats } from '../lib/storage';
 import SearchBox from '../components/SearchBox';
 import ExpansionFilter from '../components/ExpansionFilter';
 import MountCard from '../components/MountCard';
+import ProgressBadge from '../components/ProgressBadge';
 
 export default function HomePage() {
   const [filteredMounts, setFilteredMounts] = useState<Mount[]>([]);
+  const [allMounts, setAllMounts] = useState<Mount[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -26,7 +29,14 @@ export default function HomePage() {
     try {
       setLoading(true);
       setError(null);
-      await loadMounts();
+      const mountsData = await loadMounts();
+      setAllMounts(mountsData);
+      
+      // Run data migration to clean up invalid mount IDs
+      const { migrateOwnedMounts } = await import('../lib/storage');
+      const validMountIds = mountsData.map(mount => mount.id);
+      migrateOwnedMounts(validMountIds);
+      
       // Initial load with current filters
       const results = searchAndFilter(searchQuery, selectedExpansion);
       setFilteredMounts(results);
@@ -67,10 +77,19 @@ export default function HomePage() {
     );
   }
 
+  const stats = allMounts.length > 0 ? getOwnershipStats(allMounts) : null;
+
   return (
     <div className="home-page">
       <header>
         <h1>MoP Mounts Collection</h1>
+        {stats && (
+          <ProgressBadge 
+            owned={stats.global.owned} 
+            total={stats.global.total}
+            label="Overall Progress"
+          />
+        )}
         <div className="filters">
           <SearchBox 
             value={searchQuery} 
