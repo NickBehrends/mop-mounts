@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import type { Mount } from '../lib/types';
-import { loadMounts } from '../lib/dataset';
+import { loadMounts, getMountById } from '../lib/dataset';
 
 export default function MountPage() {
   const { id } = useParams<{ id: string }>();
@@ -14,8 +14,8 @@ export default function MountPage() {
       try {
         setLoading(true);
         setError(null);
-        const allMounts = await loadMounts();
-        const foundMount = allMounts.find(m => m.id === id);
+        await loadMounts();
+        const foundMount = id ? getMountById(id) : undefined;
         if (!foundMount) {
           setError('Mount not found');
         } else {

@@ -15,8 +15,8 @@ export default function ExpansionPage() {
       try {
         setLoading(true);
         setError(null);
-        const allMounts = await loadMounts();
-        const filtered = name ? filterByExpansion(allMounts, name) : allMounts;
+        await loadMounts();
+        const filtered = name ? filterByExpansion(name) : filterByExpansion('all');
         setMounts(filtered);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load mount data');
