@@ -51,7 +51,9 @@ export const loadMounts = async (): Promise<Mount[]> => {
   }
 
   try {
-    const response = await fetch('/data/mounts.json');
+    // Use environment-aware base path for data fetch
+    const basePath = import.meta.env.PROD ? '/mop-mounts' : '';
+    const response = await fetch(`${basePath}/data/mounts.json`);
     if (!response.ok) {
       throw new Error(`Failed to load mounts data: ${response.status}`);
     }
