@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import type { Mount } from '../lib/types';
 import { loadMounts, getMountById } from '../lib/dataset';
-import { isMountOwned, toggleMountOwnership } from '../lib/storage';
+import { isMountOwned, toggleMountOwnership, getUserNote, setUserNote } from '../lib/storage';
 
 export default function MountPage() {
   const { id } = useParams<{ id: string }>();
@@ -10,6 +10,7 @@ export default function MountPage() {
   const [owned, setOwned] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [userNote, setUserNoteState] = useState('');
 
   useEffect(() => {
     const loadData = async () => {
@@ -23,6 +24,7 @@ export default function MountPage() {
         } else {
           setMount(foundMount);
           setOwned(isMountOwned(foundMount.id));
+          setUserNoteState(getUserNote(foundMount.id));
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load mount data');
@@ -38,6 +40,14 @@ export default function MountPage() {
     if (!mount) return;
     const newOwned = toggleMountOwnership(mount.id);
     setOwned(newOwned);
+  };
+
+  const handleNoteChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const note = e.target.value;
+    setUserNoteState(note);
+    if (mount) {
+      setUserNote(mount.id, note);
+    }
   };
 
   if (loading) {
@@ -123,6 +133,17 @@ export default function MountPage() {
                 <p>{mount.notes}</p>
               </div>
             )}
+
+            <div className="info-group">
+              <h3>Personal Notes</h3>
+              <textarea
+                value={userNote}
+                onChange={handleNoteChange}
+                placeholder="Add your personal notes about this mount..."
+                className="user-notes-input"
+                rows={3}
+              />
+            </div>
 
             {mount.wowheadId && (
               <div className="info-group">

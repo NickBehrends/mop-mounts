@@ -1,5 +1,6 @@
 // Local storage utilities for mount ownership tracking
 const STORAGE_KEY = "mop-mounts.v2.owned";
+const NOTES_STORAGE_KEY = "mop-mounts.v2.notes";
 
 export interface UserCollection {
   ownedMountIds: string[];
@@ -215,4 +216,39 @@ export const bulkToggleOwnership = (mountIds: string[], makeOwned: boolean): str
   
   saveOwnedMounts(newOwned);
   return newOwned;
+};
+
+// User notes functionality
+export const loadUserNotes = (): Record<string, string> => {
+  try {
+    const stored = localStorage.getItem(NOTES_STORAGE_KEY);
+    if (!stored) return {};
+    return JSON.parse(stored);
+  } catch (error) {
+    console.warn('Failed to load user notes from localStorage:', error);
+    return {};
+  }
+};
+
+export const saveUserNotes = (notes: Record<string, string>): void => {
+  try {
+    localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(notes));
+  } catch (error) {
+    console.error('Failed to save user notes to localStorage:', error);
+  }
+};
+
+export const getUserNote = (mountId: string): string => {
+  const notes = loadUserNotes();
+  return notes[mountId] || '';
+};
+
+export const setUserNote = (mountId: string, note: string): void => {
+  const notes = loadUserNotes();
+  if (note.trim()) {
+    notes[mountId] = note.trim();
+  } else {
+    delete notes[mountId];
+  }
+  saveUserNotes(notes);
 };
