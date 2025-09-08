@@ -1,0 +1,14 @@
+{
+  "name": "mop-mounts",
+  "private": true,
+  "scripts": {
+    "dev": "cd web && npm run dev",
+    "dev:admin": "cd admin && npm run dev",
+    "build": "cd web && npm run build",
+    "build:admin": "cd admin && npm run build"
+  },
+  "workspaces": [
+    "web",
+    "admin"
+  ]
+}
