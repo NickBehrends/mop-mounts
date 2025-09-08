@@ -1,0 +1,68 @@
+name: Validate Data Quality
+
+on:
+  pull_request:
+    paths:
+      - 'data/**'
+      - 'schemas/**'
+      - 'scripts/**'
+      - '.github/workflows/validate-data.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'data/**'
+      - 'schemas/**'
+      - 'scripts/**'
+      - '.github/workflows/validate-data.yml'
+
+jobs:
+  validate-data:
+    name: Data Quality Gate
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        # Fetch full history to compare with main branch
+        fetch-depth: 0
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: 'scripts/package.json'
+    
+    - name: Install script dependencies
+      working-directory: ./scripts
+      run: npm ci
+    
+    - name: Validate JSON Schema
+      working-directory: ./scripts
+      run: |
+        echo "🔍 Validating mounts.json against JSON schema..."
+        node validate-schema.mjs
+    
+    - name: Check for duplicates
+      working-directory: ./scripts
+      run: |
+        echo "🔍 Checking for duplicate IDs and names..."
+        node check-duplicates.mjs
+    
+    - name: Verify data normalization
+      working-directory: ./scripts
+      run: |
+        echo "🔍 Verifying data is properly sorted and normalized..."
+        node sort-and-normalize.mjs --dry-run
+    
+    - name: Check dataVersion increments
+      working-directory: ./scripts
+      run: |
+        echo "🔍 Checking dataVersion increments for data changes..."
+        node check-dataversion.mjs
+    
+    - name: Report success
+      run: |
+        echo "✅ All data quality checks passed!"
+        echo "✅ Data is valid, normalized, and properly versioned"

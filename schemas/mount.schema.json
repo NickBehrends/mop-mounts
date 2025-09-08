@@ -1,0 +1,89 @@
+{
+  "$id": "https://goodjava.github.io/mop-mounts/schemas/mount.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["id", "name", "expansion", "category", "faction", "sourceType", "sourceDetail", "dataVersion", "lastUpdatedUtc"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$",
+      "description": "Stable unique key. Never reuse."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Display name of the mount"
+    },
+    "expansion": {
+      "enum": ["Classic", "The Burning Crusade", "Wrath of the Lich King", "Cataclysm", "Mists of Pandaria"],
+      "description": "WoW expansion when mount was introduced"
+    },
+    "category": {
+      "enum": ["Ground", "Flying", "Aquatic", "Multi"],
+      "description": "Mount movement type"
+    },
+    "faction": {
+      "enum": ["Alliance", "Horde", "Neutral"],
+      "description": "Faction restriction, Neutral unless truly restricted"
+    },
+    "sourceType": {
+      "enum": ["Drop", "Vendor", "Quest", "Achievement", "Crafting", "Promotion", "Other"],
+      "description": "How the mount is obtained"
+    },
+    "sourceDetail": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Free-form short description of acquisition"
+    },
+    "zone": {
+      "type": "string",
+      "description": "Zone where mount is obtained"
+    },
+    "wowheadId": {
+      "type": "number",
+      "description": "Numeric Wowhead entity ID if available"
+    },
+    "requiresRiding": {
+      "type": "string",
+      "description": "Riding skill requirement"
+    },
+    "professionReq": {
+      "type": "string",
+      "description": "Profession requirement"
+    },
+    "reputationReq": {
+      "type": "string",
+      "description": "Reputation requirement"
+    },
+    "cost": {
+      "type": "string",
+      "description": "Cost to obtain the mount"
+    },
+    "isLimitedTime": {
+      "type": "boolean",
+      "description": "Whether mount is limited time availability"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes about the mount"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Structured hints for acquisition UI"
+    },
+    "dataVersion": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Monotonically increasing integer for versioning"
+    },
+    "lastUpdatedUtc": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO8601 timestamp of last update"
+    }
+  },
+  "additionalProperties": false
+}

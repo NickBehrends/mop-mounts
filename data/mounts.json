@@ -1,0 +1,46 @@
+[
+  {
+    "id": "black-war-steed",
+    "name": "Black War Steed",
+    "expansion": "Classic",
+    "category": "Ground",
+    "faction": "Alliance",
+    "sourceType": "Vendor",
+    "sourceDetail": "PvP Vendor for Honor Points",
+    "cost": "50 Honor Points",
+    "requiresRiding": "Apprentice Riding",
+    "tags": ["pvp", "honor"],
+    "dataVersion": 1,
+    "lastUpdatedUtc": "2025-09-08T00:00:00.000Z"
+  },
+  {
+    "id": "red-skeletal-horse",
+    "name": "Red Skeletal Horse",
+    "expansion": "Classic", 
+    "category": "Ground",
+    "faction": "Horde",
+    "sourceType": "Vendor",
+    "sourceDetail": "Undercity Quartermaster",
+    "cost": "1 Gold",
+    "requiresRiding": "Apprentice Riding",
+    "zone": "Undercity",
+    "tags": ["faction", "undead"],
+    "dataVersion": 1,
+    "lastUpdatedUtc": "2025-09-08T00:00:00.000Z"
+  },
+  {
+    "id": "swift-spectral-tiger",
+    "name": "Swift Spectral Tiger",
+    "expansion": "The Burning Crusade",
+    "category": "Ground",
+    "faction": "Neutral",
+    "sourceType": "Promotion",
+    "sourceDetail": "Trading Card Game Loot Card",
+    "isLimitedTime": true,
+    "notes": "Extremely rare TCG mount",
+    "tags": ["tcg", "rare", "spectral"],
+    "wowheadId": 25477,
+    "dataVersion": 1,
+    "lastUpdatedUtc": "2025-09-08T00:00:00.000Z"
+  }
+]

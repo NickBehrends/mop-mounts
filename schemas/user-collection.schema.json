@@ -1,0 +1,42 @@
+{
+  "$id": "https://goodjava.github.io/mop-mounts/schemas/user-collection.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["schema", "schemaVersion", "exportedAtUtc", "datasetDataVersion", "owned"],
+  "properties": {
+    "schema": {
+      "const": "mop-mounts.user-collection",
+      "description": "Schema identifier for user collection files"
+    },
+    "schemaVersion": {
+      "const": 1,
+      "description": "Version of the user collection schema"
+    },
+    "exportedAtUtc": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO8601 timestamp when collection was exported"
+    },
+    "datasetDataVersion": {
+      "type": "number",
+      "description": "Version of the dataset this collection was based on"
+    },
+    "owned": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Array of Mount IDs that the user owns"
+    },
+    "notes": {
+      "type": "object",
+      "patternProperties": {
+        "^[a-z0-9-]+$": {
+          "type": "string"
+        }
+      },
+      "description": "Optional user notes keyed by mount ID"
+    }
+  },
+  "additionalProperties": false
+}
